@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>               <!-- нужен только ради NotifyIcon -->
+    <EnableWindowsTargeting>true</EnableWindowsTargeting> <!-- разрешает сборку Windows-проекта на Linux -->
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>GammaTool</AssemblyName>
+    <RootNamespace>GammaTool</RootNamespace>
+    <Version>0.1.0</Version>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages> <!-- не тащить в сборку ~13 лишних языковых папок -->
+    <NoWarn>$(NoWarn);WPF0001;WFO0003</NoWarn>          <!-- ThemeMode экспериментальный; DPI остаётся в манифесте (PerMonitorV2) -->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Чтобы имена из WPF и WinForms (Application, Color, Cursor...) не конфликтовали -->
+    <Using Remove="System.Windows.Forms" />
+    <Using Remove="System.Drawing" />
+  </ItemGroup>
+
+</Project>
