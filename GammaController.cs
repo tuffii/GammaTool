@@ -9,10 +9,14 @@ namespace GammaTool;
 internal sealed class GammaController : IDisposable
 {
     // ===== Кривая интенсивности (подгоняй под вкус) =====
-    // При интенсивности 100 %: гамма = 1 + MaxGammaBoost, контраст = 1 + MaxContrastBoost.
+    // Шкала −50…150 %. Ноль — исходная рампа монитора, без изменений.
+    // Гамма = 1 + (интенсивность / 100) * MaxGammaBoost.
+    // −50 % → 0.5 (темнее исходной), 100 % → 2.0, 150 % → 2.5.
     // Гамма 2.0 поднимает середину 0.5 -> ~0.71.
     // Контраст > 1 обрезает самые тёмные и самые светлые уровни, поэтому по умолчанию 0.
     // Для «как в BrightRaider» поставь MaxContrastBoost = 0.10.
+    public const int MinIntensity = -50;
+    public const int MaxIntensity = 150;
     const double MaxGammaBoost = 1.0;
     const double MaxContrastBoost = 0.0;
 
@@ -69,7 +73,7 @@ internal sealed class GammaController : IDisposable
 
     public bool SetIntensity(int value)
     {
-        Intensity = Math.Clamp(value, 0, 100);
+        Intensity = Math.Clamp(value, MinIntensity, MaxIntensity);
         return Apply();
     }
 

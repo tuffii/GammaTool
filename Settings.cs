@@ -24,7 +24,7 @@ internal sealed class HotkeyBinding
 
 internal sealed class AppSettings
 {
-    public int Intensity { get; set; } = 40;              // 0..100
+    public int Intensity { get; set; } = 40;              // −50..150, 0 = исходная гамма
     public bool Enabled { get; set; }                     // состояние при следующем запуске
     public string? MonitorDevice { get; set; }            // null = основной монитор
     public int StepPercent { get; set; } = 5;             // шаг хоткеев +/-

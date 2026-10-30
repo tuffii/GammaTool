@@ -229,10 +229,10 @@
         </Setter>
     </Style>
 
-    <!-- ============ Ползунок целиком (0..100, шаг 1, клик переносит бегунок в точку) ============ -->
+    <!-- ============ Ползунок целиком (−50..150, шаг 1, клик переносит бегунок в точку) ============ -->
     <Style x:Key="GammaSlider" TargetType="Slider">
-        <Setter Property="Minimum" Value="0"/>
-        <Setter Property="Maximum" Value="100"/>
+        <Setter Property="Minimum" Value="-50"/>
+        <Setter Property="Maximum" Value="150"/>
         <Setter Property="SmallChange" Value="1"/>
         <Setter Property="LargeChange" Value="5"/>
         <Setter Property="TickFrequency" Value="1"/>

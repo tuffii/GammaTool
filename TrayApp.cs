@@ -74,7 +74,7 @@ internal sealed class TrayApp
 
     void SetIntensity(int value)
     {
-        _s.Intensity = Math.Clamp(value, 0, 100);
+        _s.Intensity = Math.Clamp(value, GammaController.MinIntensity, GammaController.MaxIntensity);
         Report(_gamma.SetIntensity(_s.Intensity));
         RefreshUi();
     }

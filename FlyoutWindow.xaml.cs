@@ -55,7 +55,7 @@ public partial class FlyoutWindow : Window
     public void UpdateState(bool enabled, int intensity)
     {
         _updating = true;
-        IntensitySlider.Value = Math.Clamp(intensity, 0, 100);
+        IntensitySlider.Value = Math.Clamp(intensity, GammaController.MinIntensity, GammaController.MaxIntensity);
         ValueText.Text = $"{(int)IntensitySlider.Value}%";
         PowerButton.IsChecked = enabled;                       // цвет кнопки меняется анимацией из Theme.xaml
         PowerButton.Content = enabled ? "Выключить" : "Включить";
