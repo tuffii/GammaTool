@@ -42,9 +42,9 @@ Default shortcuts: `Ctrl+Alt+G` toggle, `Ctrl+Alt+Up` and `Ctrl+Alt+Down` to cha
 2. Put it in a permanent folder, for example `C:\Tools\GammaTool\`. Autostart uses this path.
 3. Run it. If SmartScreen warns about an unsigned app, choose **More info → Run anyway**.
 
-### Required registry value
+### Optional: registry value
 
-Windows rejects gamma ramps that deviate strongly from linear unless this value is set. Run once in an **administrator** Command Prompt, then reboot:
+On some systems Windows rejects strong gamma ramps (for example, 2.0 and above) and the slider stops having effect. If that happens, set this value once from an **administrator** Command Prompt and reboot:
 
 ```bat
 reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ICM" /v GdiIcmGammaRange /t REG_DWORD /d 256 /f
