@@ -49,6 +49,8 @@ public partial class FlyoutWindow : Window
         PreviewKeyDown += (_, e) => { if (e.Key == Key.Escape) Hide(); };
         Deactivated += (_, _) => Hide();
         IsVisibleChanged += OnVisibleChanged;
+        L10n.LanguageChanged += ApplyLanguage;
+        ApplyLanguage();
     }
 
     /// Привести внешний вид в соответствие с состоянием (без повторной отправки событий).
@@ -58,8 +60,15 @@ public partial class FlyoutWindow : Window
         IntensitySlider.Value = Math.Clamp(intensity, GammaController.MinIntensity, GammaController.MaxIntensity);
         ValueText.Text = $"{(int)IntensitySlider.Value}%";
         PowerButton.IsChecked = enabled;                       // цвет кнопки меняется анимацией из Theme.xaml
-        PowerButton.Content = enabled ? "Выключить" : "Включить";
+        ApplyLanguage();
         _updating = false;
+    }
+
+    void ApplyLanguage()
+    {
+        TitleText.Text = L10n.T("Gamma");
+        GearButton.ToolTip = L10n.T("Settings");
+        PowerButton.Content = PowerButton.IsChecked == true ? L10n.T("Disable") : L10n.T("Enable");
     }
 
     /// Показать окно у правого нижнего угла рабочей области того монитора, где курсор.

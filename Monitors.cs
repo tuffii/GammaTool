@@ -28,7 +28,7 @@ internal static class Monitors
 
             bool primary = (adapter.StateFlags & NativeMethods.DISPLAY_DEVICE_PRIMARY_DEVICE) != 0;
             string shortName = adapter.DeviceName.TrimStart('\\', '.');   // "\\.\DISPLAY1" -> "DISPLAY1"
-            string title = $"{shortName} — {name}{(primary ? " (основной)" : "")}";
+            string title = $"{shortName} — {name}{(primary ? $" ({L10n.T("Primary")})" : "")}";
 
             result.Add(new MonitorInfo(adapter.DeviceName, title, primary));
         }

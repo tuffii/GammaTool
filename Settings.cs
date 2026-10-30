@@ -10,7 +10,7 @@ internal sealed class HotkeyBinding
 
     public override string ToString()
     {
-        if (Key == 0) return "(не назначено)";
+        if (Key == 0) return L10n.T("NotSet");
 
         var parts = new List<string>();
         if ((Modifiers & NativeMethods.MOD_CONTROL) != 0) parts.Add("Ctrl");
@@ -29,6 +29,7 @@ internal sealed class AppSettings
     public string? MonitorDevice { get; set; }            // null = основной монитор
     public int StepPercent { get; set; } = 5;             // шаг хоткеев +/-
     public bool Autostart { get; set; }
+    public string Language { get; set; } = L10n.En;
 
     public HotkeyBinding Toggle { get; set; } = new()
     {

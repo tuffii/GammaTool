@@ -14,7 +14,7 @@ internal sealed class TrayApp
     readonly HotkeyWindow _hotkeys = new();
     readonly FlyoutWindow _flyout = new();
     readonly WinForms.NotifyIcon _tray = new();
-    readonly WinForms.ToolStripMenuItem _menuToggle = new();
+    readonly WinForms.ToolStripMenuItem _menuExit = new();
     readonly Dispatcher _ui = Dispatcher.CurrentDispatcher;         // для вызовов из чужих потоков
     readonly DispatcherTimer _reapplyTimer = new() { Interval = TimeSpan.FromMilliseconds(800) };
     readonly Drawing.Icon _iconOn = MakeIcon(Drawing.Color.FromArgb(0xE8, 0x59, 0x0C));   // акцент из Theme.xaml
@@ -38,14 +38,13 @@ internal sealed class TrayApp
         _flyout.SettingsClicked += OpenSettings;
         _flyout.Hidden += () => _s.Save();
 
-        // трей
-        _menuToggle.Click += (_, _) => SetEnabled(!_gamma.Enabled);
+        // трей: в меню только выход, включение и настройки — в окне
+        _menuExit.Click += (_, _) => ExitApp();
         var menu = new WinForms.ContextMenuStrip();
-        menu.Items.Add(_menuToggle);
-        menu.Items.Add("Настройки…", null, (_, _) => OpenSettings());
-        menu.Items.Add(new WinForms.ToolStripSeparator());
-        menu.Items.Add("Выход", null, (_, _) => ExitApp());
+        menu.Items.Add(_menuExit);
         _tray.ContextMenuStrip = menu;
+        L10n.LanguageChanged += RefreshUi;
+        L10n.Set(_s.Language);
         _tray.MouseClick += (_, e) => { if (e.Button == WinForms.MouseButtons.Left) ToggleFlyout(); };
         _tray.Visible = true;
 
@@ -100,13 +99,13 @@ internal sealed class TrayApp
     void RegisterHotkeys()
     {
         var failed = new List<string>();
-        if (!_hotkeys.Register(HotkeyWindow.IdToggle, _s.Toggle, repeat: false)) failed.Add($"вкл/выкл ({_s.Toggle})");
-        if (!_hotkeys.Register(HotkeyWindow.IdUp, _s.Up, repeat: true)) failed.Add($"плюс ({_s.Up})");
-        if (!_hotkeys.Register(HotkeyWindow.IdDown, _s.Down, repeat: true)) failed.Add($"минус ({_s.Down})");
+        if (!_hotkeys.Register(HotkeyWindow.IdToggle, _s.Toggle, repeat: false)) failed.Add($"{L10n.T("Toggle")} ({_s.Toggle})");
+        if (!_hotkeys.Register(HotkeyWindow.IdUp, _s.Up, repeat: true)) failed.Add($"{L10n.T("IntensityUp")} ({_s.Up})");
+        if (!_hotkeys.Register(HotkeyWindow.IdDown, _s.Down, repeat: true)) failed.Add($"{L10n.T("IntensityDown")} ({_s.Down})");
 
         if (failed.Count > 0)
             _tray.ShowBalloonTip(6000, "GammaTool",
-                "Не удалось занять сочетания (их использует другая программа): " + string.Join(", ", failed),
+                L10n.T("HotkeyBusy") + string.Join(", ", failed),
                 WinForms.ToolTipIcon.Warning);
     }
 
@@ -126,10 +125,16 @@ internal sealed class TrayApp
 
         try
         {
+            string previousLanguage = L10n.Language;
             var window = new SettingsWindow(_s);
-            if (window.ShowDialog() != true) return;
+            if (window.ShowDialog() != true)
+            {
+                L10n.Set(previousLanguage);
+                return;
+            }
 
             window.ReadInto(_s);
+            L10n.Set(_s.Language);
             _gamma.SetDevice(_s.MonitorDevice);
             Autostart.Set(_s.Autostart);
             _s.Save();
@@ -180,8 +185,8 @@ internal sealed class TrayApp
     void RefreshUi()
     {
         _tray.Icon = _gamma.Enabled ? _iconOn : _iconOff;
-        _tray.Text = $"Гамма: {_s.Intensity}% ({(_gamma.Enabled ? "вкл" : "выкл")})";
-        _menuToggle.Text = _gamma.Enabled ? "Выключить" : "Включить";
+        _tray.Text = string.Format(L10n.T("Tray"), _s.Intensity, _gamma.Enabled ? L10n.T("StateOn") : L10n.T("StateOff"));
+        _menuExit.Text = L10n.T("Exit");
         _flyout.UpdateState(_gamma.Enabled, _s.Intensity);
     }
 
@@ -191,9 +196,7 @@ internal sealed class TrayApp
         if (_errorShown) return;
         _errorShown = true;
 
-        _tray.ShowBalloonTip(6000, "GammaTool",
-            "Windows не принял гамма-рампу. Проверь ключ GdiIcmGammaRange и перезагрузись (раздел 2.2 инструкции).",
-            WinForms.ToolTipIcon.Warning);
+        _tray.ShowBalloonTip(6000, "GammaTool", L10n.T("RampRejected"), WinForms.ToolTipIcon.Warning);
     }
 
     static Drawing.Icon MakeIcon(Drawing.Color color)

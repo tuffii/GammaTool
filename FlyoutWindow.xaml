@@ -28,7 +28,7 @@
             <DockPanel>
                 <TextBlock x:Name="ValueText" DockPanel.Dock="Right" Text="0%"
                            FontSize="14" FontWeight="SemiBold" Foreground="#E8590C"/>
-                <TextBlock Text="Гамма" FontSize="14" FontWeight="SemiBold"/>
+                <TextBlock x:Name="TitleText" Text="Gamma" FontSize="14" FontWeight="SemiBold"/>
             </DockPanel>
 
             <!-- Ползунок -->
@@ -42,10 +42,10 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <ToggleButton x:Name="PowerButton" Height="34" Content="Включить"
+                <ToggleButton x:Name="PowerButton" Height="34" Content="Enable"
                               Style="{StaticResource PowerToggle}"/>
                 <Button x:Name="GearButton" Grid.Column="1" Width="34" Height="34" Margin="8,0,0,0"
-                        Content="&#xE713;" ToolTip="Настройки"
+                        Content="&#xE713;" ToolTip="Settings"
                         Style="{StaticResource IconButton}"/>
             </Grid>
         </Grid>
