@@ -2,82 +2,85 @@
 
 [English](README.md) · [Русский](README.ru.md)
 
-A Windows 11 tray utility that changes display gamma with one slider. It writes the standard GDI gamma ramp, so it does not depend on an AMD, NVIDIA, or Intel control panel.
+Minimal Windows 11 tray utility for adjusting monitor gamma. Changes are written through the GDI gamma ramp.
 
-The ramp is built on top of the monitor's current one. **0%** is the picture you already have. Values below zero darken it. Values above zero lift the midtones.
+![Main window](docs/images/flyout.jpg)
+
+## Gamma range
 
 | Slider | Gamma |
 | --- | --- |
 | −50% | 0.5 |
-| 0% | 1.0, unchanged |
+| 0% | 1.0 (unchanged) |
 | 100% | 2.0 |
 | 150% | 2.5 |
 
-## Main window
+0% is your current picture. Negative values darken it, positive values brighten the midtones.
 
-Left-click the tray icon. The panel sits at the bottom-right corner of the monitor under the cursor.
+## Usage
 
-![GammaTool panel: slider at 150% and the Enable button](docs/images/flyout.jpg)
+- Left-click the tray icon to open the panel. Use the slider, or the mouse wheel over it.
+- **Enable** / **Disable** turns the adjustment on or off.
+- The gear icon opens settings.
+- Right-click the tray icon for **Exit**.
 
-**Enable** turns the ramp on. The same button becomes **Disable** while it is on. The gear opens settings. Click outside the panel, or press Esc, to close it.
+![Settings](docs/images/settings.jpg)
 
-The right-click menu contains only **Exit**. Turning gamma on and opening settings are done from this panel.
+**Settings**
 
-## Settings
+- **Language**: English or Русский.
+- **Monitor**: which display to adjust.
+- **Toggle, Intensity +, Intensity −**: click a field and press a shortcut with Ctrl, Alt or Shift. Backspace clears it. Each shortcut must be unique.
+- **Step, %**: how much each Intensity shortcut changes the slider. Holding the key repeats.
+- **Start with Windows**: adds the current `.exe` path to your user autostart.
 
-![Settings: language, monitor, hotkeys, step size, and start with Windows](docs/images/settings.jpg)
-
-- **Language** — English or Russian. The names stay in their own language so the list is readable either way. OK saves the choice. Cancel restores the previous one.
-- **Monitor** — which display receives the ramp. Switching monitors restores the previous one.
-- **Toggle**, **Intensity +**, **Intensity −** — click a field and press a shortcut. It must include Ctrl, Alt, or Shift. Backspace clears it. The same shortcut cannot be used for two actions.
-- **Step, %** — how far the plus and minus hotkeys move the slider. Holding the key repeats.
-- **Start with Windows** — writes the current exe path to the current user's Run key. Put the file in a permanent folder first.
-
-Default shortcuts are Ctrl+Alt+G, Ctrl+Alt+Up, and Ctrl+Alt+Down.
+Default shortcuts: `Ctrl+Alt+G` toggle, `Ctrl+Alt+Up` and `Ctrl+Alt+Down` to change intensity.
 
 ## Install
 
-Download `GammaTool.exe` from the [latest release](https://github.com/tuffii/GammaTool/releases/latest). The .NET runtime is inside the file. Windows does not need the SDK or a separate runtime.
+1. Download `GammaTool.exe` from the [latest release](https://github.com/tuffii/GammaTool/releases/latest). It includes the .NET runtime, so nothing else needs to be installed.
+2. Put it in a permanent folder, for example `C:\Tools\GammaTool\`. Autostart uses this path.
+3. Run it. If SmartScreen warns about an unsigned app, choose **More info → Run anyway**.
 
-Keep the file somewhere stable, for example `C:\Tools\GammaTool\GammaTool.exe`, then run it. The tray icon is gray while gamma is off and orange while it is on. If SmartScreen warns about the unsigned file, choose **More info**, then **Run anyway**.
+### Required registry value
 
-Before the first real test, set one registry value from an **administrator** command prompt and reboot:
+Windows rejects gamma ramps that deviate strongly from linear unless this value is set. Run once in an **administrator** Command Prompt, then reboot:
 
 ```bat
 reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ICM" /v GdiIcmGammaRange /t REG_DWORD /d 256 /f
 ```
 
-Windows otherwise rejects ramps that bend far from a straight line. GammaTool's range, 0.5 to 2.5, needs this. The program never writes to HKLM and does not need to run as administrator.
-
-Remove the value later with:
+To undo it:
 
 ```bat
 reg delete "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ICM" /v GdiIcmGammaRange /f
 ```
 
-Check the result in **SDR**. With HDR enabled, the ramp usually does nothing. If two adjustments stack and the picture is too bright, turn off Custom Color in the GPU control panel.
+The app itself does not need administrator rights and does not write to HKLM.
 
-A virtual machine is enough to check the window, hotkeys, and settings. The gamma change itself has to be checked on a physical PC: virtual adapters such as QXL accept the call and leave the picture alone.
+### Notes
 
-## What it keeps safe
+- Test in SDR. With HDR on, the ramp is usually ignored.
+- If the picture gets too bright, check whether a GPU control panel (for example AMD Custom Color) is also adjusting it.
+- A virtual machine is fine for checking the UI, hotkeys and settings. Virtual display adapters such as QXL accept the ramp but do not change the picture, so check the effect on a real monitor.
 
-- Exit restores the original ramp. The same happens if the process is killed and then started again.
-- A display-mode change, wake from sleep, or unlocking the session reapplies the current setting.
-- There are no network calls and no telemetry.
-- Saturation, color temperature, game profiles, and overlays are out of scope.
+## Behaviour
+
+- Exit restores the original ramp. The same happens after a crash on the next start.
+- Waking from sleep, unlocking the session or changing the display mode reapplies the current value.
+- No network access and no telemetry.
 
 ## Build
 
-The project targets `net10.0-windows` and cross-compiles on Linux. You need the [.NET SDK 10](https://dotnet.microsoft.com/download).
+Requires the [.NET SDK 10](https://dotnet.microsoft.com/download). The project cross-compiles from Linux.
 
 ```bash
-dotnet build -c Release
 dotnet publish -c Release -r win-x64 --self-contained true \
   -p:PublishSingleFile=true \
   -p:IncludeNativeLibrariesForSelfExtract=true \
   -p:EnableCompressionInSingleFile=true
 ```
 
-The file to copy is `bin/Release/net10.0-windows/win-x64/publish/GammaTool.exe`.
+The output is `bin/Release/net10.0-windows/win-x64/publish/GammaTool.exe`.
 
-Tagged versions are published by GitHub Actions. Pushing a `v*` tag builds this same exe on a Windows runner and attaches it to the release.
+Pushing a `v*` tag runs `.github/workflows/release.yml`, which builds the exe on Windows and attaches it to a GitHub release.
